@@ -15,6 +15,7 @@ def get_files():
 
     # Populate table with all files and folders in current folder
     files = []
+    item_id = 0
     for item in os.listdir(folder_path):
         item_path = os.path.join(folder_path, item)
         size = os.path.getsize(item_path)
@@ -41,7 +42,11 @@ def get_files():
         date_modified = datetime.utcfromtimestamp(unix_timestamp)
         date_modified_str = date_modified.strftime('%B %d, %Y %H:%M:%S')
 
+        # Update id
+        item_id += 1
+
         files.append({
+            'id': item_id,
             'name': item,
             'dateModified': date_modified_str,
             'type': itemType,

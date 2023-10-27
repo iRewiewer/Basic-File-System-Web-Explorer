@@ -21,6 +21,7 @@ function GenerateFileTable(path) {
                 file_download_path = $("#currentPath").text() + file.name;
                 // Create a new row for each file
                 var row = "<tr data-type=\"" + file.type + "\">" +
+                    "<td>" + file.id + "</td>" +
                     "<td>" + file.name + "</td>" +
                     "<td>" + file.dateModified + "</td>" +
                     "<td>" + file.type + "</td>" +
@@ -38,15 +39,29 @@ function GenerateFileTable(path) {
                 $(newRow).on('click', (event) => {
                     var targetRow = event.currentTarget;
 
-                    if ($(targetRow).hasClass("table-primary")) {
-                        $(targetRow).removeClass('table-primary');
-                    } else {
+                    if (localStorage.getItem("mode") == "light") {
+                        $("#TBody tr").removeClass("table-light");
+
+                        if ($(targetRow).hasClass("table-primary")) {
+                            $(targetRow).removeClass('table-primary');
+                        } else {
+                            $("#TBody tr").removeClass("table-primary");
+                            $(targetRow).addClass('table-primary');
+                        }
+                    }
+                    else {
                         $("#TBody tr").removeClass("table-primary");
-                        $(targetRow).addClass('table-primary');
+
+                        if ($(targetRow).hasClass("table-light")) {
+                            $(targetRow).removeClass('table-light');
+                        } else {
+                            $("#TBody tr").removeClass("table-light");
+                            $(targetRow).addClass('table-light');
+                        }
                     }
 
                     if (targetRow.dataset.type === 'Folder') {
-                        var folderName = $(targetRow).find("td:first").text();
+                        var folderName = $(targetRow).find("td:eq(1)").text();
                         var currentPath = $("#currentPath").text();
                         var newPath = currentPath + folderName + "/";
                         GenerateFileTable(newPath);
@@ -120,6 +135,9 @@ function changeMode(isInit) {
 }
 
 function setLight() {
+    $("#TBody tr").removeClass("table-light");
+    $("#TBody tr").removeClass("table-primary");
+
     $("body").removeClass("dark");
     $("#fileTable").removeClass("table-dark");
     $("#modeButton").removeClass("btn-dark");
@@ -133,6 +151,9 @@ function setLight() {
 }
 
 function setDark() {
+    $("#TBody tr").removeClass("table-light");
+    $("#TBody tr").removeClass("table-primary");
+
     $("body").removeClass("light");
     $("#fileTable").removeClass("table-light");
     $("#modeButton").removeClass("btn-light");
