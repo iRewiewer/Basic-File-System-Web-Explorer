@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetroZone</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h2 id="title">File Browser</h2>
+        <p class="pathText">Current Path: <span id="currentPath" class="pathText">E:/</span></p>
+        <div id="buttons-row" class="d-flex align-items-center justify-content-between ">
+            <button id="backButton" class="btn btn-secondary disabled ">Back</button>
+            <button id="modeButton" class="btn btn-light"><img id="modeIcon" src="./static/moon.svg"></img></button>
+        </div>
+
+        <table id="fileTable" class="table table-striped table-bordered table-hover">
+            <thead id="THead">
+                <tr>
+                    <th class=".name">Name</th>
+                    <th class=".dateModified">Date Modified</th>
+                    <th class=".folder">Type</th>
+                    <th class=".fileSize">File Size</th>
+                    <th class=".download">DL</th>
+                </tr>
+            </thead>
+            <tbody id="TBody">
+                <!-- File list will be generated here -->
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

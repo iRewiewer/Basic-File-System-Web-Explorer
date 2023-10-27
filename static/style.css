@@ -1,0 +1,23 @@
+#title {
+    margin-top: 20px;
+}
+
+#buttons-row {
+    margin-bottom: 10px;
+}
+
+td:nth-child(5),
+th:nth-child(5) {
+    text-align: center;
+    width: 50px;
+}
+
+.dark {
+    background-color: #181a1b;
+    color: #FFFFFF;
+}
+
+.light {
+    background-color: #FFFFFF;
+    color: #000000;
+}

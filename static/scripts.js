@@ -1,0 +1,146 @@
+function GenerateFileTable(path) {
+    $("#TBody").empty();
+
+    // Get file information and populate the table
+    $.ajax({
+        url: "/get_files", // API endpoint
+        data: { path: path }, // Send the current path to the server
+        success: function (data) {
+            data = JSON.parse(data);
+            data.forEach(function (file) {
+                // Download button exception
+                var downloadSVG_name = "download_dark.svg";
+                if (localStorage.getItem("mode") == "dark") {
+                    downloadSVG_name = "download_light.svg";
+                }
+
+                // Create a new row for each file
+                var row = "<tr data-type=\"" + file.type + "\">" +
+                    "<td>" + file.name + "</td>" +
+                    "<td>" + file.dateModified + "</td>" +
+                    "<td>" + file.type + "</td>" +
+                    "<td>" + file.size + "</td>" +
+                    "<td><a href='/download?file=" + file.name + "'>" +
+                    "<img class=\"downloadSVG\" src=\"./static/" + downloadSVG_name + "\"></img>" +
+                    "</a></td></tr>";
+                $("#TBody").append(row);
+
+                // Add the click event listener to the newly created row
+                var newRow = $("#TBody tr").last()[0];
+                $(newRow).on('click', (event) => {
+                    var targetRow = event.currentTarget;
+
+                    if ($(targetRow).hasClass("table-primary")) {
+                        $(targetRow).removeClass('table-primary');
+                    } else {
+                        $("#TBody tr").removeClass("table-primary");
+                        $(targetRow).addClass('table-primary');
+                    }
+
+                    if (targetRow.dataset.type === 'Folder') {
+                        var folderName = $(targetRow).find("td:first").text();
+                        var currentPath = $("#currentPath").text();
+                        var newPath = currentPath + folderName + "/";
+                        $("#currentPath").text(newPath)
+                        GenerateFileTable(newPath);
+                    }
+                });
+            });
+        }
+    });
+
+    // Update back button
+    if ($(currentPath).text() == 'E:/') {
+        $("#backButton").removeClass("btn-primary");
+        $("#backButton").addClass("btn-secondary");
+        $("#backButton").addClass("disabled");
+    }
+    else {
+        $("#backButton").addClass("btn-primary");
+        $("#backButton").removeClass("btn-secondary");
+        $("#backButton").removeClass("disabled");
+    }
+}
+function BackButtonListener() {
+    $("#backButton").on('click', function () {
+        var currentPath = $("#currentPath").text();
+        var pathParts = currentPath.split('/');
+
+        if (pathParts.length > 1) {
+            pathParts.pop();
+            pathParts.pop(); // last character is a '/' so it adds an extra space
+        }
+
+        var newPath = pathParts.join('/') + '/';
+        $("#currentPath").text(newPath);
+
+        GenerateFileTable(newPath);
+    });
+}
+
+function ModeButtonListener() {
+    $("#modeButton").on('click', function () {
+        changeMode(false);
+    });
+}
+
+function changeMode(isInit) {
+    // First time website is accessed
+    if (localStorage.getItem("mode") == null) {
+        localStorage.setItem("mode", "light");
+    }
+
+    if (localStorage.getItem("mode") == "light") {
+        if (isInit) {
+            // On opening the site
+            setLight();
+            return;
+        }
+
+        localStorage.setItem("mode", "dark");
+        setDark();
+    }
+    else {
+        if (isInit) {
+            // On opening the site
+            setDark();
+            return;
+        }
+
+        localStorage.setItem("mode", "light");
+        setLight();
+    }
+}
+
+function setLight() {
+    $("body").removeClass("dark");
+    $("#fileTable").removeClass("table-dark");
+    $("#modeButton").removeClass("btn-dark");
+
+    $("#modeIcon").attr("src", "./static/moon.svg");
+    $(".downloadSVG").attr("src", "./static/download_dark.svg");
+
+    $("body").addClass("light");
+    $("#fileTable").addClass("table-light");
+    $("#modeButton").addClass("btn-light");
+}
+
+function setDark() {
+    $("body").removeClass("light");
+    $("#fileTable").removeClass("table-light");
+    $("#modeButton").removeClass("btn-light");
+
+    $("#modeIcon").attr("src", "./static/sun.svg");
+    $(".downloadSVG").attr("src", "./static/download_light.svg");
+
+    $("body").addClass("dark");
+    $("#fileTable").addClass("table-dark");
+    $("#modeButton").addClass("btn-dark");
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    GenerateFileTable("/");
+    BackButtonListener();
+    ModeButtonListener();
+    changeMode(true);
+});
