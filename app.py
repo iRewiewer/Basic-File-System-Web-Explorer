@@ -6,21 +6,17 @@ from datetime import datetime
 app = Flask(__name__)
 app.static_folder = 'static'
 
-# Define the root directory where the files are located
-ROOT_DIR = "../ROMs"
-
 @app.route('/get_files')
 def get_files():
-    path = request.args.get('path', '/')
-    abs_path = os.path.join(ROOT_DIR, path)
+    folder_path = request.args.get('path', '/')
 
-    if not os.path.exists(abs_path) or not os.path.isdir(abs_path):
+    if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
         return json.dumps([])
 
     # Populate table with all files and folders in current folder
     files = []
-    for item in os.listdir(abs_path):
-        item_path = os.path.join(abs_path, item)
+    for item in os.listdir(folder_path):
+        item_path = os.path.join(folder_path, item)
         size = os.path.getsize(item_path)
 
         # Format file size
@@ -56,9 +52,13 @@ def get_files():
 
 @app.route('/download')
 def download():
-    file_name = request.args.get('file')
-    abs_path = os.path.join(ROOT_DIR, file_name)
-    return send_from_directory(ROOT_DIR, file_name, as_attachment=True)
+    SERVER_DIR = os.getcwd()
+    file_path = request.args.get('file')
+
+    if os.path.isfile(file_path):
+        return send_from_directory(SERVER_DIR.count("\\") * "../", file_path[3:], as_attachment=True)
+    else:
+        pass
 
 @app.route('/')
 def index():

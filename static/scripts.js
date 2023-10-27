@@ -1,5 +1,9 @@
+var ROOT_DIR = "E:/";
+
 function GenerateFileTable(path) {
     $("#TBody").empty();
+
+    $("#currentPath").text(path);
 
     // Get file information and populate the table
     $.ajax({
@@ -14,15 +18,19 @@ function GenerateFileTable(path) {
                     downloadSVG_name = "download_light.svg";
                 }
 
+                file_download_path = $("#currentPath").text() + file.name;
                 // Create a new row for each file
                 var row = "<tr data-type=\"" + file.type + "\">" +
                     "<td>" + file.name + "</td>" +
                     "<td>" + file.dateModified + "</td>" +
                     "<td>" + file.type + "</td>" +
                     "<td>" + file.size + "</td>" +
-                    "<td><a href='/download?file=" + file.name + "'>" +
+                    "<td>" +
+                    "<a href='/download?file=" + file_download_path + "'>" +
                     "<img class=\"downloadSVG\" src=\"./static/" + downloadSVG_name + "\"></img>" +
-                    "</a></td></tr>";
+                    "</a>" +
+                    "</td>" +
+                    "</tr>";
                 $("#TBody").append(row);
 
                 // Add the click event listener to the newly created row
@@ -41,7 +49,6 @@ function GenerateFileTable(path) {
                         var folderName = $(targetRow).find("td:first").text();
                         var currentPath = $("#currentPath").text();
                         var newPath = currentPath + folderName + "/";
-                        $("#currentPath").text(newPath)
                         GenerateFileTable(newPath);
                     }
                 });
@@ -50,7 +57,7 @@ function GenerateFileTable(path) {
     });
 
     // Update back button
-    if ($(currentPath).text() == 'E:/') {
+    if ($(currentPath).text() == ROOT_DIR) {
         $("#backButton").removeClass("btn-primary");
         $("#backButton").addClass("btn-secondary");
         $("#backButton").addClass("disabled");
@@ -139,7 +146,11 @@ function setDark() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    GenerateFileTable("/");
+    if (ROOT_DIR.charAt(ROOT_DIR.length - 1) != "/") {
+        ROOT_DIR += "/";
+    }
+
+    GenerateFileTable(ROOT_DIR);
     BackButtonListener();
     ModeButtonListener();
     changeMode(true);
