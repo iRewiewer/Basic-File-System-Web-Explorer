@@ -1,13 +1,14 @@
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_file
 import os
 import json
 from datetime import datetime
+import shutil
 
 app = Flask(__name__)
 app.static_folder = 'static'
 
 @app.route('/get_files')
-def get_files():
+def Get_files():
     folder_path = request.args.get('path', '/')
 
     if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
@@ -56,17 +57,28 @@ def get_files():
     return json.dumps(files)
 
 @app.route('/download')
-def download():
-    SERVER_DIR = os.getcwd()
+def Download():
     file_path = request.args.get('file')
 
     if os.path.isfile(file_path):
-        return send_from_directory(SERVER_DIR.count("\\") * "../", file_path[3:], as_attachment=True)
+        print(file_path)
+        return send_file(file_path, as_attachment=True)
     else:
-        pass
+        folder_name = file_path.split("/")[-1]
+        shutil.make_archive(folder_name, "zip", file_path)
+        return send_file(f"./{folder_name}.zip", as_attachment=True)
+    # problem here
+
+@app.route('/cleanupdl')
+def DLCleanup():
+    file_path = request.args.get('file')
+    print(file_path)
+    print(f"{file_path.split('/')[-1]}.zip")
+    #os.remove(f"{file_path.split('/')[-1]}.zip")
+    return "OK",200
 
 @app.route('/')
-def index():
+def Index():
     return render_template("index.html")
 
 if __name__ == '__main__':

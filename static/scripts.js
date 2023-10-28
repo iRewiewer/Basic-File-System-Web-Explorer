@@ -18,7 +18,8 @@ function GenerateFileTable(path) {
                     downloadSVG_name = "download_light.svg";
                 }
 
-                file_download_path = $("#currentPath").text() + file.name;
+                //file_download_path = $("#currentPath").text() + file.name;
+
                 // Create a new row for each file
                 var row = "<tr data-type=\"" + file.type + "\">" +
                     "<td>" + file.id + "</td>" +
@@ -27,12 +28,22 @@ function GenerateFileTable(path) {
                     "<td>" + file.type + "</td>" +
                     "<td>" + file.size + "</td>" +
                     "<td>" +
-                    "<a href='/download?file=" + file_download_path + "'>" +
+                    "<a href='javascript:void(0)' class='download-link'>" + // /download?file=" + file_download_path + "
                     "<img class=\"downloadSVG\" src=\"./static/" + downloadSVG_name + "\"></img>" +
                     "</a>" +
                     "</td>" +
                     "</tr>";
                 $("#TBody").append(row);
+
+                $("#TBody tr:last .download-link").on('click', (event) => {
+                    if ($("#TBody tr:last").data("type") === 'Folder') {
+                        Download(file.name, true);
+                    }
+                    //////////////////////////////////// problem here
+                    else {
+                        Download(file.name, false);
+                    }
+                });
 
                 // Add the click event listener to the newly created row
                 var newRow = $("#TBody tr").last()[0];
@@ -83,6 +94,26 @@ function GenerateFileTable(path) {
         $("#backButton").removeClass("disabled");
     }
 }
+
+function Download(file_name, isFolder) {
+    file_download_path = $("#currentPath").text() + file_name;
+    $.ajax({
+        url: "/download",
+        data: { file: file_download_path },
+        success: function (data) {
+            if (isFolder) {
+                setTimeout(function () {
+                    $.ajax({
+                        url: "/cleanupdl",
+                        data: { file: file_download_path }
+                    });
+                }, 1000);
+            }
+            window.location = data
+        }
+    });
+}
+
 function BackButtonListener() {
     $("#backButton").on('click', function () {
         var currentPath = $("#currentPath").text();
