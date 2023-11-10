@@ -2,7 +2,7 @@ from flask import Flask, request, render_template, send_file
 import os
 import json
 from datetime import datetime
-import shutil
+from icecream import ic
 
 app = Flask(__name__)
 app.static_folder = 'static'
@@ -17,6 +17,7 @@ def Get_files():
     # Populate table with all files and folders in current folder
     files = []
     item_id = 0
+
     for item in os.listdir(folder_path):
         item_path = os.path.join(folder_path, item)
         size = os.path.getsize(item_path)
@@ -58,24 +59,7 @@ def Get_files():
 
 @app.route('/download')
 def Download():
-    file_path = request.args.get('file')
-
-    if os.path.isfile(file_path):
-        print(file_path)
-        return send_file(file_path, as_attachment=True)
-    else:
-        folder_name = file_path.split("/")[-1]
-        shutil.make_archive(folder_name, "zip", file_path)
-        return send_file(f"./{folder_name}.zip", as_attachment=True)
-    # problem here
-
-@app.route('/cleanupdl')
-def DLCleanup():
-    file_path = request.args.get('file')
-    print(file_path)
-    print(f"{file_path.split('/')[-1]}.zip")
-    #os.remove(f"{file_path.split('/')[-1]}.zip")
-    return "OK",200
+    return send_file(request.args.get('file'), as_attachment=True)
 
 @app.route('/')
 def Index():
